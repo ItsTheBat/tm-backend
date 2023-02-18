@@ -80,7 +80,7 @@ public class AuthController {
         return ResponseEntity.ok(new SignupResponse("User registered successfully!", signUpRequest.getUsername()));
     }
 
-    public User formUserData(SignUpRequest signUpRequest) {
+    private User formUserData(SignUpRequest signUpRequest) {
         User user = new User();
         BeanUtils.copyProperties(signUpRequest, user);
         user.setPassword(encoder.encode(signUpRequest.getPassword()));

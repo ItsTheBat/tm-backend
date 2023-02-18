@@ -27,6 +27,7 @@ import com.zdf.taskmanager.dto.Document;
 import com.zdf.taskmanager.model.ERole;
 import com.zdf.taskmanager.model.Task;
 import com.zdf.taskmanager.payload.request.CreateTaskPayload;
+import com.zdf.taskmanager.payload.request.TaskListRequest;
 import com.zdf.taskmanager.payload.response.TaskData;
 import com.zdf.taskmanager.payload.response.TaskDataResponse;
 import com.zdf.taskmanager.payload.response.TaskDeleteResponse;
@@ -129,7 +130,28 @@ public class TaskManagerServiceImpl {
         }
     }
 
-    public TaskDataResponse getUserTasks(String employeeId, List<String> roles) {
+    public TaskDataResponse getUserTasks(TaskListRequest userTask) {
+        String role = getCurrentUserRole(userTask.getRoles());
+        if (StringUtils.isNotBlank(role)) {
+            if (role.equals("ROLE_MANAGER")) {
+                List<Task> tasks = taskRepo.findTaskByTaskNameOrTaskIdAndCreatedBy(userTask.getSearchKey(),
+                        userTask.getEmployeeId());
+                List<TaskData> taskList = tasks.stream().map(task -> formTaskListResponse(task, "ROLE_MANAGER"))
+                        .collect(Collectors.toList());
+                return new TaskDataResponse("success", role, taskList);
+            } else {
+                List<Task> tasks = taskRepo.findTaskByTaskNameOrTaskIdAndAssignedTo(userTask.getSearchKey(),
+                        userTask.getEmployeeId());
+                List<TaskData> taskList = tasks.stream().map(task -> formTaskListResponse(task, "ROLE_USER"))
+                        .collect(Collectors.toList());
+                return new TaskDataResponse("success", role, taskList);
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private String getCurrentUserRole(List<String> roles) {
         String role = null;
         if (CommonUtil.isNotEmpty(roles)) {
             if (roles.stream().anyMatch(r -> r.equals("ROLE_MANAGER"))) {
@@ -138,21 +160,7 @@ public class TaskManagerServiceImpl {
                 role = "ROLE_USER";
             }
         }
-        if (StringUtils.isNotBlank(role)) {
-            if (role.equals("ROLE_MANAGER")) {
-                List<Task> tasks = taskRepo.findTaskByCreatedBy(employeeId);
-                List<TaskData> taskList = tasks.stream().map(task -> formTaskListResponse(task, "ROLE_MANAGER"))
-                        .collect(Collectors.toList());
-                return new TaskDataResponse("success", role, taskList);
-            } else {
-                List<Task> tasks = taskRepo.findTaskByAssignedTo(employeeId);
-                List<TaskData> taskList = tasks.stream().map(task -> formTaskListResponse(task, "ROLE_USER"))
-                        .collect(Collectors.toList());
-                return new TaskDataResponse("success", role, taskList);
-            }
-        } else {
-            return null;
-        }
+        return role;
     }
 
     public TaskData formTaskListResponse(Task task, String role) {
@@ -164,7 +172,8 @@ public class TaskManagerServiceImpl {
         return taskData;
     }
 
-    public TaskViewResponse fetchTask(String taskId, String role) {
+    public TaskViewResponse fetchTask(String taskId, List<String> roles) {
+        String role = getCurrentUserRole(roles);
         Task task = taskRepo.findTaskByTaskId(taskId);
         if (Objects.nonNull(task)) {
             return formTaskView(task, role, "success");
@@ -195,7 +204,8 @@ public class TaskManagerServiceImpl {
 
         }).collect(Collectors.toList());
         taskView.setDocs(documents);
-        taskView.setRole(role);
+        taskView.setStartDate(task.getStartDate().format(formatDate));
+        taskView.setEndDate(task.getEndDate().format(formatDate));
         taskView.setResponseString(responseStr);
         return taskView;
     }

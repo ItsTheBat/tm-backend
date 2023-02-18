@@ -1,7 +1,5 @@
 package com.zdf.taskmanager.payload.response;
 
-import java.time.LocalDateTime;
-
 public class TaskData {
 
     private String taskName;

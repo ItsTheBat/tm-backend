@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zdf.taskmanager.payload.request.CreateTaskPayload;
+import com.zdf.taskmanager.payload.request.TaskDetailRequest;
 import com.zdf.taskmanager.payload.request.TaskListRequest;
 import com.zdf.taskmanager.payload.response.TaskDataResponse;
 import com.zdf.taskmanager.payload.response.TaskDeleteResponse;
@@ -60,17 +60,14 @@ public class TaskController {
     @PostMapping("/getUserTasks")
     @PreAuthorize("hasRole('MANAGER') or hasRole('USER')")
     public ResponseEntity<String> getUserTasks(@RequestBody TaskListRequest userTask) {
-        TaskDataResponse taskDetails = taskManagerSvc.getUserTasks(userTask.getEmployeeId(), userTask.getRoles());
+        TaskDataResponse taskDetails = taskManagerSvc.getUserTasks(userTask);
         return new ResponseEntity<String>(responseBuilder.buildBaseResponse(taskDetails), HttpStatus.OK);
     }
 
-    @GetMapping("/getTaskDetail")
+    @PostMapping("/getTaskDetail")
     @PreAuthorize("hasRole('MANAGER') or hasRole('USER')")
-    public ResponseEntity<String> getTaskDetail(@RequestParam String taskId, @RequestParam String role) {
-        // List<String> roles =
-        // SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
-        // .map(item -> item.getAuthority()).collect(Collectors.toList());
-        TaskViewResponse taskDetail = taskManagerSvc.fetchTask(taskId, role);
+    public ResponseEntity<String> getTaskDetail(@RequestBody TaskDetailRequest userTask) {
+        TaskViewResponse taskDetail = taskManagerSvc.fetchTask(userTask.getTaskId(), userTask.getRoles());
         return new ResponseEntity<String>(responseBuilder.buildBaseResponse(taskDetail), HttpStatus.OK);
     }
 

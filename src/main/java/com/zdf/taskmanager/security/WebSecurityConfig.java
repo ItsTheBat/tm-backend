@@ -1,5 +1,9 @@
 package com.zdf.taskmanager.security;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +26,8 @@ import com.zdf.taskmanager.service.UserDetailsServiceImpl;
     // jsr250Enabled = true,
     prePostEnabled = true)
 public class WebSecurityConfig {
+
+  private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
   @Autowired
   UserDetailsServiceImpl userDetailsService;
@@ -62,6 +68,11 @@ public class WebSecurityConfig {
         .permitAll()
         .antMatchers("/api/test/**").permitAll()
         .anyRequest().authenticated();
+    http.logout(logout -> logout.permitAll()
+        .logoutSuccessHandler((request, response, authentication) -> {
+          logger.info("Logout successful");
+          response.setStatus(HttpServletResponse.SC_OK);
+        }));
     http.authenticationProvider(authenticationProvider());
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     return http.build();

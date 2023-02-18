@@ -15,8 +15,11 @@ public interface TaskRepository extends MongoRepository<Task, String> {
     @Query(value = "{taskName: '?0'}")
     List<Task> findTaskByTaskName(String taskName);
 
-    @Query(value = "{'$or':[ {'taskName': {$regex: ?0, $options: 'i' }}, {'taskId': {$regex: ?0, $options: 'i' }} ] }")
-    List<Task> findByTaskNameOrTaskId(String searchParam);
+    @Query(value = "{'$and':[{createdBy: '?1'}, {'$or': [{'taskName': {$regex: ?0, $options: 'i' }}, {'taskId': {$regex: ?0, $options: 'i' }}]}]}")
+    List<Task> findTaskByTaskNameOrTaskIdAndCreatedBy(String searchParam, String createdBy);
+
+    @Query(value = "{'$and':[{assignedTo: '?1'}, {'$or': [{'taskName': {$regex: ?0, $options: 'i' }}, {'taskId': {$regex: ?0, $options: 'i' }}]}]}")
+    List<Task> findTaskByTaskNameOrTaskIdAndAssignedTo(String searchParam, String assignee);
 
     @Query(value = "{assignedTo: '?0'}")
     List<Task> findTaskByAssignedTo(String assignee);

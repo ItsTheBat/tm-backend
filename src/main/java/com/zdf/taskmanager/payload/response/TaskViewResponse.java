@@ -1,6 +1,5 @@
 package com.zdf.taskmanager.payload.response;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,17 +11,16 @@ public class TaskViewResponse {
     private String taskName;
     private String decsription;
     private String assignedTo;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private String startDate;
+    private String endDate;
     private List<Document> docs = new ArrayList<>();
     private String responseString;
-    private String role;
 
     public TaskViewResponse() {
     }
 
     public TaskViewResponse(String taskId, String taskName, String decsription, String assignedTo,
-            LocalDateTime startDate, LocalDateTime endDate, List<Document> docs, String responseString, String role) {
+            String startDate, String endDate, List<Document> docs, String responseString) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.decsription = decsription;
@@ -31,7 +29,6 @@ public class TaskViewResponse {
         this.endDate = endDate;
         this.docs = docs;
         this.responseString = responseString;
-        this.role = role;
     }
 
     public String getTaskId() {
@@ -66,19 +63,19 @@ public class TaskViewResponse {
         this.assignedTo = assignedTo;
     }
 
-    public LocalDateTime getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
@@ -96,14 +93,6 @@ public class TaskViewResponse {
 
     public void setResponseString(String responseString) {
         this.responseString = responseString;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
 }
