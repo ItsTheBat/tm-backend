@@ -13,6 +13,7 @@ public class TaskViewResponse {
     private String assignedTo;
     private String startDate;
     private String endDate;
+    private String status;
     private List<Document> docs = new ArrayList<>();
     private String responseString;
 
@@ -20,13 +21,14 @@ public class TaskViewResponse {
     }
 
     public TaskViewResponse(String taskId, String taskName, String decsription, String assignedTo,
-            String startDate, String endDate, List<Document> docs, String responseString) {
+            String startDate, String endDate, String status, List<Document> docs, String responseString) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.decsription = decsription;
         this.assignedTo = assignedTo;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.status = status;
         this.docs = docs;
         this.responseString = responseString;
     }
@@ -93,6 +95,14 @@ public class TaskViewResponse {
 
     public void setResponseString(String responseString) {
         this.responseString = responseString;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 }

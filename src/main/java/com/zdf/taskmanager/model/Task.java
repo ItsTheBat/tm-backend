@@ -23,11 +23,11 @@ public class Task extends Audit {
     private String assignedTo;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-
+    private String status;
     private List<String> docs = new ArrayList<>();
 
     public Task(String id, String taskId, String taskName, String decsription, String assignedTo,
-            LocalDateTime startDate, LocalDateTime endDate, List<String> docs) {
+            LocalDateTime startDate, LocalDateTime endDate, String status, List<String> docs) {
         this.id = id;
         this.taskId = taskId;
         this.taskName = taskName;
@@ -35,10 +35,19 @@ public class Task extends Audit {
         this.assignedTo = assignedTo;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.status = status;
         this.docs = docs;
     }
 
     public Task() {
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getId() {

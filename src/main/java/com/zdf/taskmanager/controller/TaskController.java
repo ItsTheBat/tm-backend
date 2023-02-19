@@ -44,8 +44,8 @@ public class TaskController {
 
     @PostMapping("/deleteTask")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<String> deleteTask(@RequestParam String taskId) {
-        TaskDeleteResponse deleteResponse = taskManagerSvc.deleteTask(taskId);
+    public ResponseEntity<String> deleteTask(@RequestBody TaskDetailRequest userTask) {
+        TaskDeleteResponse deleteResponse = taskManagerSvc.deleteTask(userTask.getTaskId(), userTask.getRoles());
         return new ResponseEntity<String>(responseBuilder.buildBaseResponse(deleteResponse), HttpStatus.OK);
     }
 

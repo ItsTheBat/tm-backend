@@ -24,6 +24,7 @@ import com.mongodb.DBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import com.zdf.taskmanager.contants.CommonConstants;
 import com.zdf.taskmanager.dto.Document;
+import com.zdf.taskmanager.enumfields.TaskStatus;
 import com.zdf.taskmanager.model.ERole;
 import com.zdf.taskmanager.model.Task;
 import com.zdf.taskmanager.payload.request.CreateTaskPayload;
@@ -93,6 +94,7 @@ public class TaskManagerServiceImpl {
                 DateTimeFormatter.ofPattern(CommonConstants.DATE_TIME_FMT)));
         task.setEndDate(LocalDateTime.parse(taskDetails.getEndDate(),
                 DateTimeFormatter.ofPattern(CommonConstants.DATE_TIME_FMT)));
+        task.setStatus(TaskStatus.NEW.toString());
         task.setDocs(getDocuments(taskDetails.getAttachments()));
         return task;
     }
@@ -116,14 +118,19 @@ public class TaskManagerServiceImpl {
         return null;
     }
 
-    public TaskDeleteResponse deleteTask(String taskId) {
+    public TaskDeleteResponse deleteTask(String taskId, List<String> roles) {
         try {
-            Task task = taskRepo.findTaskByTaskId(taskId);
-            if (Objects.nonNull(task)) {
-                taskRepo.delete(task);
-                return new TaskDeleteResponse("success", taskId, true);
+            String role = getCurrentUserRole(roles);
+            if (role.equalsIgnoreCase("ROLE_MANAGER")) {
+                Task task = taskRepo.findTaskByTaskId(taskId);
+                if (Objects.nonNull(task)) {
+                    taskRepo.delete(task);
+                    return new TaskDeleteResponse("success", taskId, true);
+                } else {
+                    return new TaskDeleteResponse("fail_task_not_found", taskId, false);
+                }
             } else {
-                return new TaskDeleteResponse("fail_task_not_found", taskId, false);
+                return new TaskDeleteResponse("unauthorised_user", taskId, false);
             }
         } catch (Exception ex) {
             return new TaskDeleteResponse("fail_delete", taskId, false);
@@ -169,6 +176,7 @@ public class TaskManagerServiceImpl {
         taskData.setCreateDate(task.getCreatedAt().format(formatDate));
         taskData.setTaskId(task.getTaskId());
         taskData.setTaskName(task.getTaskName());
+        taskData.setStatus(task.getStatus());
         return taskData;
     }
 
