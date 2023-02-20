@@ -7,21 +7,25 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class CreateTaskPayload {
 
+    private String taskId;
     private String taskName;
     private String taskDescription;
     private String assignee;
     private String startDate;
     private String endDate;
+    private String status;
     private List<MultipartFile> attachments = new ArrayList<>();
 
     public CreateTaskPayload() {
     }
 
-    public CreateTaskPayload(String taskName, String taskDescription, String assignee, String startDate, String endDate,
-            List<MultipartFile> attachments) {
+    public CreateTaskPayload(String taskId, String taskName, String taskDescription, String assignee, String status,
+            String startDate, String endDate, List<MultipartFile> attachments) {
+        this.taskId = taskId;
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.assignee = assignee;
+        this.status = status;
         this.startDate = startDate;
         this.endDate = endDate;
         this.attachments = attachments;
@@ -73,6 +77,22 @@ public class CreateTaskPayload {
 
     public void setAttachments(List<MultipartFile> attachments) {
         this.attachments = attachments;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
 }

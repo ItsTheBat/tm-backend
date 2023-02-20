@@ -51,9 +51,8 @@ public class TaskController {
 
     @PostMapping("/updateTask")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<String> updateTask(@RequestBody CreateTaskPayload taskDetails) {
-        // TODO :
-        List<UserTaskResponse> updatedTask = taskManagerSvc.updateTask(taskDetails);
+    public ResponseEntity<String> updateTask(@RequestBody CreateTaskPayload taskDetails, HttpServletRequest request) {
+        TaskViewResponse updatedTask = taskManagerSvc.updateTask(taskDetails, request);
         return new ResponseEntity<String>(responseBuilder.buildBaseResponse(updatedTask), HttpStatus.OK);
     }
 

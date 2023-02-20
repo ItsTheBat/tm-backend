@@ -63,6 +63,25 @@ public class TaskManagerServiceImpl {
         }
     }
 
+    public TaskViewResponse updateTask(CreateTaskPayload taskDetails, HttpServletRequest request) {
+        Task task = formTask(taskDetails, request);
+        String role = ERole.ROLE_MANAGER.toString();
+        if (Objects.nonNull(task)) {
+            try {
+                task = taskRepo.save(task);
+                if (Objects.nonNull(task)) {
+                    return formTaskView(task, role, "success");
+                } else {
+                    return formTaskView(task, role, "fail_task_not_found");
+                }
+            } catch (Exception ex) {
+                return formTaskView(task, role, "fail_task_not_found");
+            }
+        } else {
+            return formTaskView(task, role, "fail_task_not_found");
+        }
+    }
+
     private UserTaskResponse formSuccessTaskResponse(Task task, String role) {
         UserTaskResponse userTaskResponse = new UserTaskResponse();
         userTaskResponse.setAssignee(task.getAssignedTo());
@@ -82,19 +101,25 @@ public class TaskManagerServiceImpl {
 
     private Task formTask(CreateTaskPayload taskDetails, HttpServletRequest request) {
         Task task = new Task();
-        task.setTaskId(CommonUtil.generateTaskId());
+        if (StringUtils.isNotBlank(taskDetails.getTaskId())) {
+            task = taskRepo.findTaskByTaskId(taskDetails.getTaskId());
+        } else {
+            task.setTaskId(StringUtils.isBlank(taskDetails.getTaskId()) ? CommonUtil.generateTaskId()
+                    : taskDetails.getTaskId());
+            task.setCreatedAt(LocalDateTime.now());
+            task.setCreatedBy(request.getUserPrincipal().getName());
+        }
         task.setTaskName(taskDetails.getTaskName());
         task.setDecsription(taskDetails.getTaskDescription());
         task.setAssignedTo(taskDetails.getAssignee());
-        task.setCreatedAt(LocalDateTime.now());
-        task.setCreatedBy(request.getUserPrincipal().getName());
         task.setUpdatedAt(LocalDateTime.now());
         task.setUpdatedBy(request.getUserPrincipal().getName());
         task.setStartDate(LocalDateTime.parse(taskDetails.getStartDate(),
                 DateTimeFormatter.ofPattern(CommonConstants.DATE_TIME_FMT)));
         task.setEndDate(LocalDateTime.parse(taskDetails.getEndDate(),
                 DateTimeFormatter.ofPattern(CommonConstants.DATE_TIME_FMT)));
-        task.setStatus(TaskStatus.NEW.toString());
+        task.setStatus(
+                StringUtils.isBlank(taskDetails.getStatus()) ? TaskStatus.NEW.toString() : taskDetails.getStatus());
         task.setDocs(getDocuments(taskDetails.getAttachments()));
         return task;
     }
@@ -112,10 +137,6 @@ public class TaskManagerServiceImpl {
             }
         }).collect(Collectors.toList());
         return attachments.stream().anyMatch(file -> Objects.isNull(file)) ? null : attachments;
-    }
-
-    public List<UserTaskResponse> updateTask(CreateTaskPayload taskDetails) {
-        return null;
     }
 
     public TaskDeleteResponse deleteTask(String taskId, List<String> roles) {
@@ -188,7 +209,6 @@ public class TaskManagerServiceImpl {
         } else {
             return formTaskView(task, role, "fail_task_not_found");
         }
-
     }
 
     private TaskViewResponse formTaskView(Task task, String role, String responseStr) {
